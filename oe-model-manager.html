@@ -1,0 +1,122 @@
+<!-- ©2015-2016 EdgeVerve Systems Limited (a fully owned Infosys subsidiary), Bangalore, India. All Rights Reserved.
+The EdgeVerve proprietary software program ("Program"), is protected by copyrights laws, international treaties and other pending or existing intellectual property rights in India, the United States and other countries.
+The Program may contain/reference third party or open source components, the rights to which continue to 
+remain with the applicable third party licensors or the open source community as the case may be and nothing 
+here transfers the rights to the third party and open source components, except as expressly permitted. 
+Any unauthorized reproduction, storage, transmission in any form or by any means (including without limitation to electronic, mechanical, printing, photocopying, recording or  otherwise), or any distribution of this Program,or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under the law. -->
+<link rel="import" href="all-imports.html">
+<link rel="import" href="elements/model-work-area.html">
+<link rel="import" href="elements/oe-model-footer.html">
+<dom-module id="oe-model-manager">
+  <template>
+    <style>
+      paper-menu-button {
+        box-sizing: border-box;
+        height: 40px;
+        padding: 0;
+      }
+
+      paper-menu-button paper-button.dropdown-trigger {
+        font-size: 12px;
+      }
+
+      paper-menu-button .dropdown-content {
+        color: var(--primary-text-color);
+      }
+
+      .list-item {
+        padding: 8px 16px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .border-top {
+        border-top: 1px solid var(--secondary-text-color);
+      }
+
+      span+iron-icon {
+        margin-left: 8px;
+      }
+
+      iron-icon+span {
+        margin-left: 8px;
+      }
+
+      iron-icon.icon-active-false {
+        visibility: hidden;
+      }
+
+      .application-logo {
+        padding: 6px 9px;
+        cursor: pointer;
+        background: var(--dark-primary-color);
+        height: 40px;
+        width: 48px;
+        box-sizing: border-box;
+      }
+
+    </style>
+    <div class="module-container">
+      <model-work-area id="createmodel" sidebar-status="[[toolBar]]" view-list="{{viewList}}"></model-work-area>
+    </div>
+    <oe-model-footer studio-footer hidden></oe-model-footer>
+  </template>
+  <script>
+    Polymer({
+      is: 'oe-model-manager',
+      behaviors: [OEUtils.AjaxBehavior, OEUtils.ModelBehavior, ModelBehavior.ModelListBehavior, ModelReduxBehavior],
+      properties: {
+        toolBar: {
+          type: Object,
+          value: {
+            showModels: true,
+            showViews: false,
+            showSideMenu: true,
+            showGridBg: false
+          }
+        }
+      },
+      attached: function () {
+        this.getModelList();
+        this.fetchViews();
+      },
+      listeners: {
+        'refresh-model-list': 'getModelList',
+        'add-new-field':'_addNewField',
+        'update-toolbar':'_updatedToolbar'
+      },
+      _addNewField:function(e){
+        var model = e.detail.model;
+        var propName = e.detail.fieldId;
+        var modelObj = this.modelList.find(function(m){
+          return m.name === model;
+        })
+        this.$.createmodel.fire('add-property-in-dialog', modelObj);
+        Polymer.Base.async(function(){
+          var propertyGrid = this.$.createmodel.$.createmodeldialog.$.propertyGrid;
+          var len = propertyGrid.propertyList.length;
+          propertyGrid.set('propertyList.'+(len-1)+'.__name__',propName);
+          Polymer.dom.flush();
+        }.bind(this),100);
+      },
+      fetchViews: function () {
+        this.makeAjaxCall(OEUtils._getRestApiUrl('/ModelViews'), 'GET', null, null, null, function (err, response) {
+          if (err) {
+            this.resolveError(err);
+          } else if (response) {
+            this.set('viewList', response);
+          }
+          this.set('selectedTenant', localStorage.getItem('tenantId'));
+        }.bind(this))
+      },
+      _updatedToolbar:function(e){
+        this.set('toolBar',JSON.parse(JSON.stringify(e.detail)));
+      },
+      getModelList: function () {
+        this.fetchModels(function () {
+          this.set('workAreaModels', JSON.parse(JSON.stringify(this.modelList)));
+        }.bind(this));
+      }
+    });
+  </script>
+</dom-module>

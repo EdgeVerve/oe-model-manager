@@ -1,0 +1,713 @@
+<!--
+©2015-2016 EdgeVerve Systems Limited (a fully owned Infosys subsidiary), Bangalore, India. All Rights Reserved.
+-->
+<script>
+	var ModelBehavior = ModelBehavior || {};
+	ModelBehavior.ConstantBehavior = {
+		attached: function () {
+
+			var relationTypes = [{
+				value: 'belongsTo',
+				label: 'Belongs To',
+				icon: 'oe-icons:belongs-to'
+			}, {
+				value: 'hasOne',
+				label: 'Has One',
+				icon: 'oe-icons:has-one'
+			}, {
+				value: 'hasMany',
+				label: 'Has Many',
+				icon: 'oe-icons:has-many'
+			}, {
+				value: 'embedsOne',
+				label: 'Embeds One',
+				icon: 'oe-icons:embeds-one'
+			}, {
+				value: 'embedsMany',
+				label: 'Embeds Many',
+				icon: 'oe-icons:embeds-many'
+			}];
+
+			var readProperty = [{
+				value: 'exists',
+				label: 'Exists'
+			}, {
+				value: 'find',
+				label: 'Find'
+			}, {
+				value: 'findById',
+				label: 'Find By Id'
+			}, {
+				value: 'findOne',
+				label: 'Find One'
+			}, {
+				value: 'count',
+				label: 'Count'
+			}];
+
+			var writeProperty = [{
+				value: 'create',
+				label: 'Create'
+			}, {
+				value: 'upsert',
+				label: 'Upsert'
+			}, {
+				value: 'destroyById',
+				label: 'Delete By Id'
+			}];
+
+			var aclPropertyList = {
+				write: writeProperty,
+				read: readProperty,
+				all: writeProperty.concat(readProperty)
+			};
+
+			aclPropertyList.write.push({
+				label: 'All',
+				value: '*'
+			});
+			aclPropertyList.read.push({
+				label: 'All',
+				value: '*'
+			});
+			aclPropertyList.all.push({
+				label: 'All',
+				value: '*'
+			});
+
+			var aclAccessType = [{
+				value: '*',
+				label: 'All'
+			}, {
+				value: 'WRITE',
+				label: 'WRITE'
+			}, {
+				value: 'READ',
+				label: 'READ'
+			}, {
+				value: 'EXECUTE',
+				label: 'EXECUTE'
+			}];
+
+			var dropdownList = {
+				relationTypes: relationTypes,
+				acl: {
+					property: aclPropertyList,
+					access: aclAccessType
+				}
+			};
+
+			var regexObj = {
+				camelCase: "^([A-Z][a-z0-9]+)+",
+				dashCase: "^([a-zA-Z0-9]+)((-[a-zA-Z0-9]+)+)$",
+				polymerName: "^([a-z]+)((-[a-z0-9]+)+)$"
+			};
+
+			this.set('dropdownConst', dropdownList);
+			this.set('regexpConst', regexObj);
+		}
+	};
+
+	ModelBehavior.ModelListBehavior = {
+    properties: {
+      modelList: {
+        type: Array,
+        statePath: 'modelList'
+      },
+      baseTypes: {
+        type: Array,
+        statePath: 'baseTypes',
+      },
+      propertyTypes: {
+        type: Array,
+        statePath: 'propertyTypes',
+      },
+      propertyArrayElemTypes: {
+        type: Array,
+        notify: true,
+        value: function () {
+          return [];
+        }
+      },
+      primitiveTypes: {
+        type: Array,
+        notify: true,
+        value: function () {
+          var val = ['string', 'boolean', 'date', 'number', 'object', 'array', 'any','phone','ccnumber'];
+          return val;
+        }
+      },
+      arrayElementTypes: {
+        type: Array,
+        notify: true,
+        value: function () {
+          var val = ['number', 'string', 'object', 'boolean'];
+          return val;
+        }
+      }
+    },
+    behaviors: [
+      ModelReduxBehavior
+    ],
+    listeners: {
+      'fetch-models': 'fetchModels'
+    },
+    actions: {
+      initializeModelList: function (modelList) {
+        return {
+          type: "INITIALIZE_MODEL_LIST",
+          modelList: modelList
+        }
+      },
+      initializePropertyTypes: function (propertyTypes) {
+        return {
+          type: "INITIALIZE_PROPERTY_TYPES",
+          propertyTypes: propertyTypes
+        }
+      },
+      initializeBaseTypes: function (baseTypes) {
+        return {
+          type: "INITIALIZE_BASE_TYPES",
+          baseTypes: baseTypes
+        }
+      }
+    },
+    fetchModels: function (cb) {
+      var url = OEUtils._getRestApiUrl('/ModelDefinitions');
+      var method = 'GET';
+      this.makeAjaxCall(url, method, null, null, null, function (err, resp) {
+        if (resp) {
+          resp = this.setHiddenModels(resp);
+          resp = resp.map(function (d) {
+            d.checked = false;
+            return this.modelToArray(d);
+          }.bind(this));
+          var modelList = this.sortIgnoreCase(resp, 'name');
+          this.dispatch('initializeModelList', modelList);
+          //this.set('modelList', modelList);
+          this.refreshModelList();
+          if (cb) {
+            cb();
+          }
+        } else {
+          this.resolveError(err);
+          if (cb) {
+            cb();
+          }
+        }
+      }.bind(this));
+    },
+    setHiddenModels: function (modelList) {
+      var frameWorkModelLists = [
+        'AppConfig',
+        'AuthSession',
+        'BaseEntity',
+        'DesignerRule'
+      ];
+
+      _.chain(modelList)
+        .filter(function (d) {
+          return (frameWorkModelLists.indexOf(d.name) != -1)
+        })
+        .forEach(function (d) {
+          d.designerHiddenModel = true;
+        }).value();
+
+      return modelList;
+    },
+
+    refreshModelList: function () {
+      if (!this.modelList || !this.primitiveTypes || !this.arrayElementTypes) {
+        return;
+      }
+      this.getMixins();
+      this.dispatch('initializeBaseTypes', this.getBaseTypes(this.modelList));
+      this.dispatch('initializePropertyTypes', this.getPropertyTypes(this.modelList));
+      // this.set('baseTypes', this.getBaseTypes(this.modelList));
+      // this.set('propertyTypes', this.getPropertyTypes(this.modelList));
+      this.set('propertyArrayElemTypes', this.getPropertyArrayElemTypes(this.modelList));
+    },
+    getMixins: function () {
+      var base = this.modelList.find(function (m) {
+        return m.name == 'BaseEntity'
+      });
+      var mixins = [];
+      if (base) {
+        var wordReg = /($[a-z])|[A-Z][^A-Z]+/g;
+        Object.keys(base.mixins).forEach(function (k) {
+          var arr = k.match(wordReg);
+          arr.pop();
+          var name = arr.join(' ');
+          mixins.push({
+            'label': name,
+            'key': k,
+            'value': base.mixins[k]
+          });
+        });
+      }
+      this.set('mixinsList', mixins);
+    },
+    getPropertyTypes: function (modelList) {
+      return this.primitiveTypes.concat(this.getBaseTypes(modelList).map(function (d) {
+        return d.name;
+      }));
+    },
+    getPropertyArrayElemTypes: function (modelList) {
+      return this.arrayElementTypes.concat(this.getBaseTypes(modelList).map(function (d) {
+        return d.name;
+      }));
+    },
+    getBaseTypes: function (modelList) {
+      modelList = modelList.filter(function (d) {
+        return d.base;
+      });
+      var baseTypes = modelList.map(function (d) {
+        return {
+          'name': d.base,
+          'properties': []
+        };
+      });
+      baseTypes = this.findUnique(baseTypes);
+      var modelNames = modelList.map(function (d) {
+        return {
+          'name': d.name,
+          'properties': d.properties
+        };
+      }.bind(this));
+      baseTypes = this.concatBaseTypes(modelNames, baseTypes);
+      return this.sortIgnoreCase(baseTypes, 'name');
+    },
+    modelToObject: function (data) {
+      data.properties = this.propertyToObject(data.properties, '__name__');
+      data.relations = this.relationToObject(data.relations, '__name__');
+      data.oeValidations = this.oeValidationsToObject(data.oeValidations, '__name__');
+      return data;
+    },
+    modelToArray: function (data) {
+      data.properties = this.propertyToArray(data.properties, '__name__');
+      data.relations = this.relationToArray(data.relations, '__name__');
+      data.oeValidations = this.oeValidationsToArray(data.oeValidations, '__name__');
+      return data;
+    },
+    propertyToObject: function (data, nameProp) {
+      var obj = {};
+      if (!Array.isArray(data) && typeof data === 'object') {
+        return data;
+      }
+      data.forEach(function (d) {
+        obj[d[nameProp]] = d;
+        delete d[nameProp];
+      });
+      return obj;
+    },
+    propertyToArray: function (data, nameProp) {
+      var arr = [];
+      var key;
+      if (Array.isArray(data)) {
+        return data;
+      }
+      for (key in data) {
+        var obj = {};
+        obj = data[key];
+        obj[nameProp] = key;
+        arr.push(obj);
+      }
+      return arr;
+    },
+    relationToObject: function (data, nameProp) {
+      return this.propertyToObject(data, nameProp);
+    },
+    relationToArray: function (data, nameProp) {
+      return this.propertyToArray(data, nameProp);
+    },
+    oeValidationsToObject: function (model, nameProp) {
+      model.forEach(function (d) {
+        delete d.newProp;
+        delete d.editable;
+        if (d.validateWhen) {
+          try {
+            d.validateWhen = JSON.parse(d.validateWhen);
+          } catch (e) {
+            console.error('validate When for ' + d.__name__ + ' should be an object');
+          }
+        }
+      });
+      return this.propertyToObject(model, nameProp);
+    },
+    oeValidationsToArray: function (model, nameProp) {
+      var items = this.propertyToArray(model, nameProp);
+      items.forEach(function (d) {
+        d.validateWhen = JSON.stringify(d.validateWhen);
+      });
+      return items;
+    },
+    sortIgnoreCase: function (arr, prop) {
+      return arr.sort(function (a, b) {
+        return a[prop].toLowerCase().localeCompare(b[prop].toLowerCase());
+      });
+    },
+    findUnique: function (baseTypes) {
+      var result = [];
+      baseTypes.forEach(function (base) {
+        var index = result.map(function (model) {
+          return model.name;
+        }).indexOf(base.name);
+        if (index == -1) {
+          result.push(base);
+        }
+      });
+      return result;
+    },
+    concatBaseTypes: function (modelNames, baseTypes) {
+      var result = modelNames;
+      baseTypes.forEach(function (base) {
+        var index = modelNames.map(function (model) {
+          return model.name;
+        }).indexOf(base.name);
+        if (index === -1) {
+          result.push(base);
+        }
+      });
+      return result;
+    },
+    getModelIndex: function (list, data, property) {
+      property = property || 'name';
+      return list.map(function (d) {
+        return d[property];
+      }).indexOf(data[property]);
+    },
+    isPropertyExist: function (model, property, value) {
+      var status = false;
+      if (Array.isArray(model)) {
+        model.forEach(function (d) {
+          if (d[property] === value) {
+            status = true;
+          }
+        });
+      } else if (model[property] === value) {
+        status = true;
+      }
+      return status;
+    }
+  };
+
+  ModelBehavior.TabBehavior = {
+    ready: function() {
+      this._tabConfig = {
+        uniqueKey: 'name'
+      };
+      this.untitledTab = 1;
+    },
+    attached: function() {
+      this._tabList = [];
+      this._selectedTab = null;
+      this._activeTabIndex = -1;
+      this._tabUniqueKey = null;
+      this.currentZoom = 1;
+      var tab = {
+        name: 'untitled_view_' + this.untitledTab,
+        models: [],
+        view: null,
+        type: 'view',
+        currentZoom: 1
+      }
+      this._openTab(tab);
+    },
+    _createTab: function(tabcontent) {
+      this.push('_tabList', this._simpleCopy(tabcontent));
+      this._selectTab(this._tabList.length - 1);
+    },
+    _closeTab: function(tabIndex) {
+      if (!tabIndex) {
+        tabIndex = this._activeTabIndex;
+      }
+
+      if (this._tabList.length > 1) {
+        this.splice('_tabList', tabIndex, 1);
+        this._selectedTab = null;
+      } else {
+        this.fire('oe-show-error', 'Cannot close all tabs');
+        return;
+      }
+
+      if (this._tabList[tabIndex]) {
+        this._selectTab(tabIndex);
+      } else {
+        this._selectTab(tabIndex - 1);
+      }
+    },
+    _selectTab: function(tabIndex) {
+      if (tabIndex < 0 || tabIndex >= this._tabList.length) {
+        return;
+      }
+      this._activeTabIndex = tabIndex;
+      this._selectedTab = this._tabList[this._activeTabIndex];
+      this.fire('tab-selected')
+    },
+    _isSelectedTab: function(tabIndex, _activeTabIndex) {
+      return (tabIndex == _activeTabIndex)
+    },
+    _openTab: function(tabcontent) {
+      var self = this;
+      var index = _.findIndex(this._tabList, function(tab) {
+        return tab[self._tabConfig.uniqueKey] == tabcontent[self._tabConfig.uniqueKey];
+      });
+      if (index == -1) {
+        this._createTab(tabcontent);
+      } else {
+        this._selectTab(index);
+      }
+    },
+    _simpleCopy: function(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+  };
+
+  ModelBehavior.ListBehavior = {
+    listeners: {
+      'initilaze-array': '_initiliazeArray',
+      'read-only': '_setReadOnly'
+    },
+    //Event Listeners
+    _initiliazeArray: function(e) {
+      this.set('itemList', e.detail.array);
+      this.set('_listConfig', e.detail.config);
+      this.set('deleteMultiple', false);
+    },
+    _setReadOnly: function() {
+      this.itemList.forEach(function(d, i) {
+        var obj = JSON.parse(JSON.stringify(d));
+        delete obj.editable;
+        this.set('itemList.' + i, obj);
+      }.bind(this));
+    },
+
+    //Single Item manipulation
+    _additem: function(e) {
+      e.stopPropagation();
+      if (!this.$.itemform.validate()) {
+        return;
+      }
+      this.itemList = this.itemList || []
+
+      this.itemList.forEach(function(d, i) {
+        var obj = JSON.parse(JSON.stringify(d));
+        delete obj.editable;
+        this.set('itemList.' + i, obj);
+      }.bind(this));
+
+
+      var obj = {}
+
+      if (this._listConfig.defaultItem) {
+        obj = JSON.parse(JSON.stringify(this._listConfig.defaultItem))
+      }
+
+      obj.editable = true;
+      obj.newItem = true;
+
+
+      this.set('itemObj', JSON.parse(JSON.stringify(obj)));
+      this.fire('add-new-item');
+      if (this._listConfig.listType == 'stack') {
+        this.splice('itemList', 0, 0, obj);
+      } else {
+        this.push('itemList', obj);
+      }
+    },
+    _edititem: function(e) {
+      e.stopPropagation();
+      var dummy = {
+        'index': this.getIndex(e)
+      };
+
+      if (this.validateForm(dummy)) {
+        var index = dummy.index;
+        this.itemList.forEach(function(d, i) {
+          var obj = JSON.parse(JSON.stringify(d));
+          delete obj.editable;
+          delete obj.newItem;
+          this.set('itemList.' + i, obj);
+        }.bind(this));
+        this.set('itemList.' + index + '.editable', true);
+        this.set('itemList.' + index + '.newItem', false);
+        this.set('itemObj', JSON.parse(JSON.stringify(this.itemList[index])));
+      }
+    },
+
+    /*_saveitem: function(e) {
+    	e.stopPropagation();
+    	if (this.$.itemform.validate()) {
+    		var index = this.getIndex(e)
+    		var obj = JSON.parse(JSON.stringify(this.itemList[index]));
+    		if (this._listConfig.uniqueRecords) {
+    			var key = this._listConfig.uniqueKey;
+    			if (key) {
+    				var found = _.filter(this.itemList, function(item) {
+    					return item[key] == obj[key]
+    				});
+    			} else {
+    				var found = _.filter(this.itemList, function(item) {
+    					return item == obj
+    				});
+    			}
+    			if (found.length > 1) {
+    				this.fire("oe-show-error", "item already exists");
+    			} else {
+    				delete obj.editable;
+    				delete obj.newItem;
+    				this.set('itemList.' + index, obj);
+    			}
+
+    		} else {
+    			delete obj.editable;
+    			delete obj.newItem;
+    			this.set('itemList.' + index, obj);
+    		}
+    	}
+    },
+    _resetitem: function(e) {
+    	e.stopPropagation();
+    	var index =this.getIndex(e);
+    	var obj = JSON.parse(JSON.stringify(this.itemObj));
+    	delete obj.editable;
+    	if (obj.newItem) {
+    		delete obj.newItem;
+    		this.splice('itemList', e.model.index, 1);
+    	} else {
+    		delete obj.newItem;
+    		this.set('itemList.' + index, obj);
+    	}
+    },*/
+    _deleteitem: function(e) {
+      var index = this.getIndex(e);
+      e.stopPropagation();
+      this.splice('itemList', index, 1);
+    },
+    getIndex: function(e) {
+      var index = e.model.index || this.itemList.indexOf(e.model.__data__.item);
+      return index;
+    },
+
+    validateForm: function(indexObj) {
+
+      var valid = true;
+      var editableIndex = _.findIndex(this.itemList, function(item) {
+        return item.editable === true;
+      });
+
+      if (editableIndex != -1) {
+        var editable = this.itemList[editableIndex];
+        var reqFields = this._listConfig.validateFields;
+
+        if (reqFields) {
+          var hasData = false;
+          reqFields.forEach(function(field) {
+            if (editable[field]) {
+              hasData = hasData || (editable[field].trim().length > 0)
+            }
+          })
+
+          if (!hasData) {
+            this.splice('itemList', editableIndex, 1);
+            if (indexObj) {
+              indexObj.index--;
+            }
+            valid = true;
+          } else {
+            valid = this.$.itemform.validate()
+          }
+
+        } else {
+          valid = this.$.itemform.validate();
+        }
+      }
+
+      return valid;
+    },
+    focusInput: function() {
+      var form = this.$.itemform;
+      if (form && form.elements) {
+        var currInput = _.find(form.elements, function(ele) {
+          var style = ele.closest('.table-row').style.display;
+          return (style == '')
+        })
+        if (currInput) {
+          currInput.focus();
+        }
+      }
+    },
+    //Multi Item manipulation
+    _deleteMultipleItems: function(e) {
+      e.stopPropagation();
+      var data = {
+        message: 'Do you want to delete ?',
+        ok: function() {
+          var propList = this.itemList.filter(function(d) {
+            return d.checked !== true;
+          });
+          this.set('itemList', propList);
+        }.bind(this),
+        cancel: function() {
+          return;
+        }
+      }
+      this.fire('oe-show-confirm', data);
+    },
+    _checkAll: function() {
+      this.setAll(this.allChecked);
+      this.set('deleteMultiple', !!this.getCount());
+    },
+    _check: function() {
+      var count = this.getCount();
+      if (count === this.itemList.length && count > 0) {
+        this.set('allChecked', true);
+      } else {
+        this.set('allChecked', false);
+      }
+      this.set('deleteMultiple', !!count);
+    },
+    getCount: function() {
+      var count = 0;
+      this.itemList.forEach(function(d) {
+        if (d.checked) {
+          count++;
+        }
+      });
+      return count;
+    },
+    setAll: function(flag) {
+      this.itemList.forEach(function(d, i) {
+        this.set('itemList.' + i + '.checked', flag);
+      }.bind(this));
+      this._check();
+    }
+  };
+
+  window.OEUtils = window.OEUtils || {};
+  window.OEUtils._getRestApiUrl = function(path){
+      var restApiRoot = (window.OEUtils && window.OEUtils.restApiRoot) ? window.OEUtils.restApiRoot : '/api';
+      return restApiRoot + path;
+  };
+
+  OEUtils.clone = function(from, to) {
+		if (from === null || typeof from !== 'object') {
+			return from;
+		}
+		if (from.constructor !== Object && from.constructor !== Array) {
+			return from;
+		}
+		if (from.constructor === Date || from.constructor === RegExp || from.constructor === Function ||
+			from.constructor === String || from.constructor === Number || from.constructor === Boolean) {
+			return new from.constructor(from);
+		}
+		to = to || new from.constructor();
+
+		for (var name in from) {
+			to[name] = typeof to[name] === 'undefined' ? OEUtils.clone(from[name], null) : to[name];
+		}
+
+		return to;
+	}
+
+</script>
