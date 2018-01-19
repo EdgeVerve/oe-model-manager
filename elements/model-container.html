@@ -441,6 +441,10 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
                     <iron-icon icon="icons:filter-list"></iron-icon>
                     <span>Define Data ACL</span>
                   </div>
+                  <div on-tap="_createDefaultUI" id="default-ui-starter">
+                    <iron-icon icon="icons:filter-list"></iron-icon>
+                    <span>Create Default UI</span>
+                  </div>
                   <!--<div on-tap="_manageStartupData" id="initial-data-starter">
                     <iron-icon icon="icons:folder-open"></iron-icon>
                     <span>Manage Startup Data</span>
@@ -620,6 +624,10 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
     _attachWorkflow: function () {
       this.$.optionsMenu.close();
       this.fire('attach-workflow', this.modelObj);
+    },
+    _createDefaultUI: function (){
+      this.$.optionsMenu.close();
+      this.fire('create-default-ui', this.modelObj);
     },
 	_deleteEditableProp:function(){
 	  var data = {
