@@ -1399,7 +1399,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
           if (!err) {
             this.fire('oe-show-success', res.message);
           } else {
-            this.fire('oe-show-error', 'Error in creating default UI');
+            this.resolveError(err);
           }
         }.bind(this));
       },
