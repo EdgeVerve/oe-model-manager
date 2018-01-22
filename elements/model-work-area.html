@@ -570,7 +570,8 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         'add-property-in-dialog':'_handleModelEditor',
         'add-validation-in-dialog':'_handleModelEditor',
         'add-relation-in-dialog':'_handleModelEditor',
-        'add-acl-in-dialog':'_handleModelEditor'
+        'add-acl-in-dialog':'_handleModelEditor',
+        'create-default-ui':'_handleDefaultUI'
       },
       observers: [
         '_viewChanged(_selectedTab.currentZoom, currentX, currentY)',
@@ -1389,6 +1390,18 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         var attachWorkflowDlg = this.$.attachWorkflowDlg;
         attachWorkflowDlg.set('modelObj', e.detail);
         attachWorkflowDlg.openDialog();
+      },
+      _handleDefaultUI: function (e) {
+        var data = {
+          modelName: e.detail.name
+        }
+        this.makeAjaxCall('/designer/createDefaultUI', 'POST', data, null, null, function (err, res) {
+          if (!err) {
+            this.fire('oe-show-success', res.message);
+          } else {
+            this.resolveError(err);
+          }
+        }.bind(this));
       },
       _handleModelEditor:function(e){
         var data = JSON.parse(JSON.stringify(e.detail));
