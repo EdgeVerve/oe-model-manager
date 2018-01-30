@@ -306,12 +306,12 @@
       if (Array.isArray(data)) {
         return data;
       }
-      for (key in data) {
+      Object.keys(data).forEach(function(key) {
         var obj = {};
         obj = data[key];
         obj[nameProp] = key;
         arr.push(obj);
-      }
+      });
       return arr;
     },
     relationToObject: function (data, nameProp) {
@@ -703,10 +703,9 @@
 		}
 		to = to || new from.constructor();
 
-		for (var name in from) {
-			to[name] = typeof to[name] === 'undefined' ? OEUtils.clone(from[name], null) : to[name];
-		}
-
+    Object.keys(from).forEach(function(name) {
+      to[name] = typeof to[name] === 'undefined' ? OEUtils.clone(from[name], null) : to[name];
+    });
 		return to;
 	}
 

@@ -1,8 +1,8 @@
 <!-- ©2015-2016 EdgeVerve Systems Limited (a fully owned Infosys subsidiary), Bangalore, India. All Rights Reserved.
 The EdgeVerve proprietary software program ("Program"), is protected by copyrights laws, international treaties and other pending or existing intellectual property rights in India, the United States and other countries.
-The Program may contain/reference third party or open source components, the rights to which continue to 
-remain with the applicable third party licensors or the open source community as the case may be and nothing 
-here transfers the rights to the third party and open source components, except as expressly permitted. 
+The Program may contain/reference third party or open source components, the rights to which continue to
+remain with the applicable third party licensors or the open source community as the case may be and nothing
+here transfers the rights to the third party and open source components, except as expressly permitted.
 Any unauthorized reproduction, storage, transmission in any form or by any means (including without limitation to electronic, mechanical, printing, photocopying, recording or  otherwise), or any distribution of this Program,or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under the law. -->
 <link rel="import" href="../../polymer/polymer.html">
 <dom-module id="work-area-menu">
@@ -11,34 +11,34 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
           .main paper-fab {
             background-color: var(--default-primary-color);
           }
-      
+
           .main.dynamic-ico paper-fab {
             position: absolute;
             top: 0px;
             animation-duration: 500ms;
             transition: all 500ms ease-in;
           }
-      
+
           .sub {
             margin-bottom: 5px;
           }
-      
+
           .sub>paper-fab {
             background-color: #fff;
             color: #727272;
             margin: 0px 0px 5px 0px;
             position: relative;
           }
-      
+
           .sub>paper-fab:hover {
             background-color: var(--default-primary-color);
             color: #fff;
           }
-      
+
           #menuContainer {
             position: relative;
           }
-      
+
           #menuContainer .sub {
             transition: all .4s cubic-bezier(.55, 0, .55, .2);
             visibility: hidden;
@@ -47,7 +47,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             overflow: hidden;
             position: relative;
           }
-      
+
           #menuContainer.expand-menu .sub {
             transition: all .4s cubic-bezier(.55, 0, .55, .2);
             height: auto;
@@ -55,7 +55,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             opacity: 1;
             transition-delay: 0s;
           }
-      
+
           @keyframes rotate-fade-in {
             from {
               transform: rotate(180deg);
@@ -66,7 +66,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
               opacity: 1;
             }
           }
-      
+
           @keyframes rotate-fade-out {
             from {
               transform: rotate(0deg);
@@ -77,28 +77,28 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
               opacity: 0;
             }
           }
-      
+
           #menuContainer .main.dynamic-ico {
             position: relative;
             width: 56px;
             height: 56px;
           }
-      
+
           #menuContainer .main.dynamic-ico #create-model {
             animation-name: rotate-fade-out;
             opacity: 0;
           }
-      
+
           #menuContainer .main.dynamic-ico #create {
             animation-name: rotate-fade-in;
             opacity: 1;
           }
-      
+
           #menuContainer.expand-menu .main.dynamic-ico #create-model {
             animation-name: rotate-fade-in;
             opacity: 1;
           }
-      
+
           #menuContainer.expand-menu .main.dynamic-ico #create {
             animation-name: rotate-fade-out;
             opacity: 0;
@@ -172,13 +172,14 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         }
       },
       _viewChanged: function (type) {
-        for (var prop in this.viewFlags) {
+        var self = this;
+        Object.keys(this.viewFlags).forEach(function(prop) {
           if (prop == type) {
-            this.set('viewFlags.' + prop, true);
+            self.set('viewFlags.' + prop, true);
           } else {
-            this.set('viewFlags.' + prop, false);
+            self.set('viewFlags.' + prop, false);
           }
-        }
+        });
       },
       uploadModels: function () {
         var modelDefinition = this.modelList.find(function (d) {
