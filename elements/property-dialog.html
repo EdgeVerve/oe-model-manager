@@ -1,8 +1,8 @@
 <!-- ©2015-2016 EdgeVerve Systems Limited (a fully owned Infosys subsidiary), Bangalore, India. All Rights Reserved.
 The EdgeVerve proprietary software program ("Program"), is protected by copyrights laws, international treaties and other pending or existing intellectual property rights in India, the United States and other countries.
-The Program may contain/reference third party or open source components, the rights to which continue to 
-remain with the applicable third party licensors or the open source community as the case may be and nothing 
-here transfers the rights to the third party and open source components, except as expressly permitted. 
+The Program may contain/reference third party or open source components, the rights to which continue to
+remain with the applicable third party licensors or the open source community as the case may be and nothing
+here transfers the rights to the third party and open source components, except as expressly permitted.
 Any unauthorized reproduction, storage, transmission in any form or by any means (including without limitation to electronic, mechanical, printing, photocopying, recording or  otherwise), or any distribution of this Program,or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under the law. -->
 <link rel="import" href="../../polymer/polymer.html">
 <dom-module id="property-dialog">
@@ -12,117 +12,117 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             width: 395px;
             background-color: var(--paper-dialog-background-color);
           }
-          
+
           .dialog-content {
             height: 400px;
             overflow: auto;
           }
-          
+
           paper-dropdown-menu {
             width: 100%;
           }
-          
+
           .toggle-btn-text {
             font-size: 12px;
             line-height: 24px;
           }
-          
+
           .toggle-btn-subtext {
             font-size: 12px;
             line-height: 24px;
             font-style: italic;
           }
-          
+
           paper-checkbox {
             --paper-checkbox-size: 14px;
           }
-          
+
           .tabs {
             border-right: 1px solid var(--divider-color);
           }
-          
+
           .tabs>.tab.selected {
             background: #EFEFEF;
           }
-          
+
           .tabs>.tab {
             width: 150px;
             padding: 10px 16px;
           }
           /*New styles*/
-          
+
           .validation-help-text {
             font-size: 10px;
             opacity: 0.7;
             margin: 8px 0px;
           }
-          
+
           .validation-help-text iron-icon {
             --iron-icon-width: 16px;
             --iron-icon-height: 16px;
           }
-          
+
           .seperator hr {
             margin: 0px;
           }
-          
+
           .seperator span {
             text-align: center;
           }
-          
+
           .validation-block {
             padding: 16px 0px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
           }
-          
+
           .validation-block:nth-of-type(even) {
             background: #fafafa;
           }
-          
+
           .validation-block>label {
             margin-bottom: 8px;
           }
-          
+
           .property-definition {
             height: 180px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
           }
-          
+
           .heading-panel {
             padding: 16px 0px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             letter-spacing: 1px;
           }
-          
+
           .prop-name {
             font-size: 16px;
             font-weight: 500;
           }
-          
+
           .prop-type {
             font-size: 12px;
             padding-bottom: 16px;
           }
-          
+
           .validation-help-text {
             font-size: 10px;
             opacity: 0.7;
             margin: 8px 0px;
           }
-          
+
           .validation-help-text iron-icon {
             --iron-icon-width: 16px;
             --iron-icon-height: 16px;
           }
-          
+
           .seperator hr {
             margin: 0px;
           }
-          
+
           .seperator span {
             text-align: center;
           }
-      
+
         </style>
 		<paper-dialog id="addPropertyDialog">
 			<template is="dom-if" if="{{!readOnly}}">
@@ -453,7 +453,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             }
             delete this.propertyObj.arrayElementType
           }
-          Object.keys(self.propertyObj).forEach(function(key) {
+          self.propertyObj && Object.keys(self.propertyObj).forEach(function(key) {
             var val = self.propertyObj[key]
             if (self.checkValue(val)) {
               prop[key] = val;

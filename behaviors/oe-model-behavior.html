@@ -234,7 +234,7 @@
       var mixins = [];
       if (base) {
         var wordReg = /($[a-z])|[A-Z][^A-Z]+/g;
-        Object.keys(base.mixins).forEach(function (k) {
+        base.mixins && Object.keys(base.mixins).forEach(function (k) {
           var arr = k.match(wordReg);
           arr.pop();
           var name = arr.join(' ');
@@ -306,7 +306,7 @@
       if (Array.isArray(data)) {
         return data;
       }
-      Object.keys(data).forEach(function(key) {
+      data && Object.keys(data).forEach(function(key) {
         var obj = {};
         obj = data[key];
         obj[nameProp] = key;
@@ -703,7 +703,7 @@
 		}
 		to = to || new from.constructor();
 
-    Object.keys(from).forEach(function(name) {
+    from && Object.keys(from).forEach(function(name) {
       to[name] = typeof to[name] === 'undefined' ? OEUtils.clone(from[name], null) : to[name];
     });
 		return to;

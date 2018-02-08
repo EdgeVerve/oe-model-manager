@@ -173,7 +173,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
       },
       _viewChanged: function (type) {
         var self = this;
-        Object.keys(this.viewFlags).forEach(function(prop) {
+        this.viewFlags && Object.keys(this.viewFlags).forEach(function(prop) {
           if (prop == type) {
             self.set('viewFlags.' + prop, true);
           } else {

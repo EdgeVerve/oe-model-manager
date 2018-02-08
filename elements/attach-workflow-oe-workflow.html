@@ -12,14 +12,14 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             --iron-icon-width: 20px;
             --iron-icon-height: 20px;
           }
-      
+
           .padding {
             padding : 6px;
           }
           .rpad {
             padding-right : 12px;
           }
-      
+
         </style>
     <div class="layout vertical padding">
       <div class="layout horizontal padding">
@@ -69,7 +69,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         if (self.vm && self.vm.workflowBody && self.vm.workflowBody.processVariables) {
           var body = self.vm.workflowBody;
           body.variables = [];
-          Object.keys(body.processVariables).forEach(function(propName) {
+          body.processVariables && Object.keys(body.processVariables).forEach(function(propName) {
             body.variables.push({
               name: propName,
               value: body.processVariables[propName]

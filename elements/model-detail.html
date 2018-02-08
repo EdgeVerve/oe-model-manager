@@ -301,7 +301,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         } else {
           this.set('showSubTitle', true);
           var self = this;
-          Object.keys(this.viewType).forEach(function(prop) {
+          this.viewType && Object.keys(this.viewType).forEach(function(prop) {
             if (prop == type) {
               self.set('subTitle', prop);
               self.set('viewType.' + prop, true);
