@@ -1,0 +1,264 @@
+<dom-module id="model-list-item">
+    <template>
+        <style>
+            /* Tag styles */
+
+            :host {
+                position: relative;
+                display: block;
+                box-sizing: border-box;
+                font-size: 14px;
+            }
+
+            iron-icon {
+                --iron-icon-width: 18px;
+                --iron-icon-height: 18px;
+            }
+
+            ul {
+                list-style: none;
+                padding-left: 16px;
+                margin: 0px;
+            }
+
+            /* Class styles */
+
+            .arrow {
+                transform: rotate(-90deg);
+                transition: all 0.3s ease;
+                visibility: visible;
+            }
+
+            .arrow:hover{
+                color: var(--accent-color);
+            }
+
+            .arrow[hidden-arrow]{
+                visibility: hidden;
+            }
+
+            .arrow.open-true {
+                transform: rotate(0deg);
+            }
+
+            .name-container {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 8px 0px;
+                cursor: pointer;
+            }
+
+            .name-container:hover{
+                color: var(--default-text-color);
+            }
+
+            .model-name {
+                max-width: 85%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-left: 8px;
+            }
+
+            .model-item-container{
+                padding: 12px 5px !important;
+                position: relative;
+            }
+
+            .view-options {
+                position: absolute;
+                right: 0px;
+                padding: 2px 8px;
+                display: flex;
+                box-sizing: border-box;
+                flex-direction: row;
+                justify-content: space-between;
+                opacity: 0;
+                transition: all 0.2s ease-in;
+                background: var(--light-primary-color);
+            }
+
+            .view-options iron-icon {
+                width: 24px;
+                height: 24px;
+                box-sizing: border-box;
+            }
+
+            .name-container:hover .view-options {
+                opacity: 1;
+            }
+
+            .main-text{
+                padding: 8px 5px !important;
+                font-family: Roboto-Light;
+                cursor: pointer;
+            }
+            .sec-text {
+                font-style: italic;
+            }
+
+            .data-manager {
+                color: #DB8800;
+            }
+
+            .model-detail {
+                color: #00B0BF;
+            }
+
+            .modelview {
+                color: var(--secondary-text-color)
+            }
+        </style>
+        <div class="component-container">
+            <div on-tap="_showSelected" type="model" class$="[[model.checked]] name-container model-item-container layout horizontal justified center">
+                <div class="model-name-container layout horizontal flex">
+                    <iron-icon on-tap="toggle" class$="arrow open-[[_modelDisplay]]" data-target="_modelDisplay" icon="icons:arrow-drop-down"></iron-icon>
+                    <div id$="[[model.name]]" class="model-name">[[model.name]]</div>
+                </div>
+                <iron-icon icon="icons:visibility" class="pull-right" hidden$="[[!model.checked]]"></iron-icon>
+                <div class="view-options">
+                    <iron-icon icon="oe-designer-icons:data-manager" class="modelview" type="model-definition" on-tap="_openOptions" id$="[[model.name]]-modelview"></iron-icon>
+                    <iron-icon icon="oe-designer-icons:data-manager" class="data-manager" type="data-manager" on-tap="_openOptions" id$="[[model.name]]-data-manager"></iron-icon>
+                    <iron-icon icon="oe-designer-icons:detailed-view" class="model-detail" type="model-detail" on-tap="_openOptions" id$="[[model.name]]-model-detail"></iron-icon>
+                    <paper-tooltip position="left" animation-delay="0" for$="[[model.name]]-data-manager">Data Manager</paper-tooltip>
+                    <paper-tooltip position="left" animation-delay="0" for$="[[model.name]]-model-detail">Detailed view</paper-tooltip>
+                    <paper-tooltip position="left" animation-delay="0" for$="[[model.name]]-modelview">Open in new view</paper-tooltip>
+                </div>
+            </div>
+            <template is="dom-if" if="[[_modelDisplay]]">
+                <iron-collapse opened="[[_modelDisplay]]">
+                    <ul>
+                        <li>
+                            <div on-tap="_showSelected" type="Properties" class="property-list-item name-container">
+                                <iron-icon on-tap="toggle" hidden-arrow$="[[!_getLength(model,'properties')]]" data-target="_propertyDisplay" class$="arrow open-[[_propertyDisplay]]" icon="icons:arrow-drop-down"></iron-icon>
+                                <iron-icon icon="icons:view-carousel" class="small"></iron-icon>
+                                <span>Properties ([[_getLength(model,'properties')]])</span>
+                            </div>
+                            <template is="dom-if" if="[[_propertyDisplay]]">
+                                <iron-collapse opened="[[_propertyDisplay]]">
+                                    <ul class="list">
+                                        <template is="dom-repeat" items=[[model.properties]] as="property" initial-count=5>
+                                            <li>
+                                                <div class="horizontal layout justified center" type="property">
+                                                    <div class="main-text">
+                                                        <iron-icon icon="icons:view-carousel" class="small"></iron-icon>
+                                                        <span>[[property.__name__]]</span>
+                                                    </div>
+                                                    <div class="sec-text">[[property.type]]</div>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </iron-collapse>
+                            </template>
+                        </li>
+                        <li>
+                            <div on-tap="_showSelected" type="Relations" class="relation-list-item name-container">
+                                <iron-icon on-tap="toggle" hidden-arrow$="[[!_getLength(model,'relations')]]" data-target="_relationDisplay" class$="arrow open-[[_relationDisplay]]" icon="icons:arrow-drop-down"></iron-icon>
+                                <iron-icon icon="icons:link" class="small"></iron-icon>
+                                <span>Relations ([[_getLength(model,'relations')]])</span>
+                            </div>
+                            <template is="dom-if" if="[[_relationDisplay]]">
+                                <iron-collapse opened="[[_relationDisplay]]">
+                                    <ul class="list">
+                                        <template is="dom-repeat" items=[[model.relations]] as="relation" initial-count=5>
+                                            <li>
+                                                <div class="flex horizontal layout justified" type="relation">
+                                                    <div class="main-text">
+                                                        <iron-icon icon="icons:link" class="small"></iron-icon>
+                                                        <span>[[relation.__name__]]</span>
+                                                    </div>
+                                                    <div class="sec-text">[[relation.type]]</div>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </iron-collapse>
+                            </template>
+                        </li>
+                        <li>
+                            <div on-tap="_showSelected" type="Validations" class="validation-list-item name-container">
+                                <iron-icon on-tap="toggle" hidden-arrow$="[[!_getLength(model,'oeValidations')]]" data-target="_validationDisplay" class$="arrow open-[[_validationDisplay]]" icon="icons:arrow-drop-down"></iron-icon>
+                                <iron-icon icon="av:playlist-add-check" class="small"></iron-icon>
+                                <span>Validations ([[_getLength(model,'oeValidations')]])</span>
+                            </div>
+                            <template is="dom-if" if="[[_validationDisplay]]">
+                                <iron-collapse opened="[[_validationDisplay]]">
+                                    <ul class="list">
+                                        <template is="dom-repeat" items=[[model.oeValidations]] as="validation" initial-count=5>
+                                            <li>
+                                                <div class="flex horizontal layout justified" type="validation">
+                                                    <div class="main-text">
+                                                        <iron-icon icon="av:playlist-add-check" class="small"></iron-icon>
+                                                        <span>[[validation.__name__]]</span>
+                                                    </div>
+                                                    <div class="sec-text">[[validation.type]]</div>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </iron-collapse>
+                            </template>
+                        </li>
+                        <li>
+                            <div on-tap="_showSelected" type="ACLs" class="acl-list-item name-container">
+                                <iron-icon class="arrow" hidden-arrow icon="icons:arrow-drop-down"></iron-icon>
+                                <iron-icon icon="icons:lock-outline" class="small"></iron-icon>
+                                <span>ACLs ([[_getLength(model,'acls')]])</span>
+                            </div>
+                        </li>
+                    </ul>
+                </iron-collapse>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: "model-list-item",
+            properties: {
+                "model": {
+                    type: Object,
+                    notify: true
+                }
+            },
+            attached: function () {
+                this.set('_modelDisplay', false);
+                this.set('_propertyDisplay', false);
+                this.set('_relationDisplay', false);
+                this.set('_validationDisplay', false);
+            },
+            toggle: function (e) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                var propName = e.currentTarget.dataset.target;
+                this.set(propName, !this[propName]);
+            },
+            _getLength: function (model, key) {
+                var propVal = model[key];
+                if (propVal && Array.isArray(propVal)) {
+                    return propVal.length;
+                } else {
+                    return 0;
+                }
+            },
+            _openOptions:function(e){
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                var type = e.currentTarget.getAttribute('type');
+                this.fire('open-model-option',{
+                    type:type,
+                    model:this.model
+                });               
+            },
+            _showSelected:function(e){
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                var type = e.currentTarget.getAttribute('type');
+                this.fire('show-selected',{
+                    type:type,
+                    model:this.model
+                })
+            }
+        })
+    </script>
+</dom-module>
