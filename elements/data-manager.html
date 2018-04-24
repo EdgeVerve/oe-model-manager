@@ -252,23 +252,11 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             <div class="layout horizontal justified json-data-container">
               <div class="data-editor">
                 <div id="spinner">
-                  <!--<paper-spinner alt="Wait..." active="{{isSpinnerActive}}"></paper-spinner>-->
                 </div>
                 <template is="dom-if" if="{{!modelDataObj.fileUpload}}">
                   <div class="filter">
-                    <oe-combo label="[[modelDataObj.method.label]]" on-pt-item-confirmed="_changePath"
-                              listdata="[[modelDataObj.method.methodRoutes]]"
-                              valueproperty="path"
-                              displayproperty="path"
-                              selected="{{modelDataObj.method.path}}"></oe-combo>
-
-                    <!--<paper-dropdown-menu label="{{modelDataObj.method.label}}">
-                      <paper-menu class="dropdown-content" attr-for-selected="datavalue" selected="{{modelDataObj.method.path}}">
-                        <template is="dom-repeat" items="[[modelDataObj.method.methodRoutes]]">
-                          <paper-item datavalue="[[item.path]]" on-tap="_changePath">{{formatPath(item.path)}}</paper-item>
-                        </template>
-                      </paper-menu>
-                    </paper-dropdown-menu>-->
+                    <oe-combo label="[[modelDataObj.method.label]]" on-pt-item-confirmed="_changePath" listdata="[[modelDataObj.method.methodRoutes]]"
+                      valueproperty="path" displayproperty="path" selected="{{modelDataObj.method.path}}"></oe-combo>
                     <div class="method-description">{{modelDataObj.method.description}}</div>
                     <form is="iron-form" id="form">
                       <template is="dom-repeat" items="{{modelDataObj.method.requiredFields}}">
