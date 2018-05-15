@@ -1,8 +1,8 @@
 <!-- ©2015-2016 EdgeVerve Systems Limited (a fully owned Infosys subsidiary), Bangalore, India. All Rights Reserved.
 The EdgeVerve proprietary software program ("Program"), is protected by copyrights laws, international treaties and other pending or existing intellectual property rights in India, the United States and other countries.
-The Program may contain/reference third party or open source components, the rights to which continue to 
-remain with the applicable third party licensors or the open source community as the case may be and nothing 
-here transfers the rights to the third party and open source components, except as expressly permitted. 
+The Program may contain/reference third party or open source components, the rights to which continue to
+remain with the applicable third party licensors or the open source community as the case may be and nothing
+here transfers the rights to the third party and open source components, except as expressly permitted.
 Any unauthorized reproduction, storage, transmission in any form or by any means (including without limitation to electronic, mechanical, printing, photocopying, recording or  otherwise), or any distribution of this Program,or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under the law. -->
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../behaviors/oe-model-behavior.html">
@@ -19,43 +19,43 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             background: #ddd;
             overflow: auto;
           }
-      
+
           .data-manager-container {
             height: calc(100vh - 86px);
             background: #fff;
           }
-      
+
           .options-header {
             padding: 6px 16px;
           }
-      
+
           .view-type {
             cursor: pointer;
             font-size: 14px;
             background: #f8f8f8;
             border-radius: 0;
           }
-      
+
           .view-type.iron-selected {
             background: #ebebeb;
             color: var(--default-primary-color);
           }
-      
+
           .options+.options {
             border-left: 1px solid var(--divider-color);
             margin-left: 8px;
           }
-      
+
           .json-view-options>div {
             padding: 0 16px;
             font-size: 14px;
           }
-      
+
           .json-view-options iron-icon {
             width: 20px;
             height: 20px;
           }
-      
+
           .json-view-options,
           oe-data-table::content #grid-header {
             padding: 6px 16px;
@@ -63,15 +63,15 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             background-color: #fafafa;
             box-sizing: border-box;
           }
-      
+
           paper-icon-button.iron-selected {
             color: var(--default-primary-color) !important;
           }
-      
+
           .json-data-container {
             padding: 0 16px;
           }
-      
+
           .json-data-container .data-editor {
             width: calc(50% - 4px);
             padding: 16px;
@@ -79,7 +79,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             height: calc(100vh - 190px);
             overflow: auto;
           }
-      
+
           .json-data-container .total-records {
             width: calc(50% - 4px);
             background: #ebf6ff;
@@ -88,64 +88,64 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             padding: 0;
             box-sizing: border-box;
           }
-      
+
           .total-records-text {
             padding: 16px;
             height: 55px;
             box-sizing: border-box;
           }
-      
+
           .total-records-list {
             height: calc(100vh - 245px);
             overflow: auto;
           }
-      
+
           .record {
             padding: 8px 16px;
           }
-      
+
           pre {
             margin: 0;
             font-family: Roboto;
             font-size: 12px;
             line-height: 17px;
           }
-      
+
           .record .data-options {
             visibility: hidden;
           }
-      
+
           .record:hover {
             background: rgba(255, 255, 255, 0.6);
           }
-      
+
           .record.is-editable-true:hover .data-options {
             visibility: visible;
           }
-      
+
           .data-editor {
             background: #f0f0f0;
             position: relative;
           }
-      
+
           #editor {
             min-height: 195px;
             font-size: 14px;
             margin: 6px 0;
           }
-      
+
           #editor.validity-true {
             color: green;
             background: rgba(0, 255, 0, 0.1);
             border: none;
           }
-      
+
           #editor.validity-false {
             color: red;
             background: rgba(255, 0, 0, 0.1);
             border: none;
           }
-      
+
           #filter {
             display: block;
             margin: 6px 0;
@@ -155,57 +155,57 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             outline: none;
             font-size: 14px;
           }
-      
+
           #spinner {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
           }
-      
+
           .model-name {
             font-size: 20px;
           }
-      
+
           .hide-spinner {
             display: none;
           }
-      
+
           .grid-view,
           .json-view {
             width: 100%;
             position: relative;
           }
-      
+
           .method-description {
             font-size: 14px;
             color: #756e6e;
             font-style: italic;
           }
-      
+
           .method-tab-heading {
             color: #2196f3;
             font-weight: bold;
           }
-      
+
           .action-buttons {
             padding-top: 25px;
           }
-      
+
           .tabs-container {
             position: relative;
           }
-      
+
           .filter paper-dropdown-menu {
             width: 100%;
           }
-      
+
           iron-icon.small {
             width: 18px;
             height: 18px;
             margin-right: 5px;
           }
-      
+
           .body-panel {
             width: 100%;
           }
@@ -252,23 +252,11 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             <div class="layout horizontal justified json-data-container">
               <div class="data-editor">
                 <div id="spinner">
-                  <!--<paper-spinner alt="Wait..." active="{{isSpinnerActive}}"></paper-spinner>-->
                 </div>
                 <template is="dom-if" if="{{!modelDataObj.fileUpload}}">
                   <div class="filter">
-                    <oe-combo label="[[modelDataObj.method.label]]" on-pt-item-confirmed="_changePath"
-                              listdata="[[modelDataObj.method.methodRoutes]]" 
-                              valueproperty="path"
-                              displayproperty="path"
-                              selected="{{modelDataObj.method.path}}"></oe-combo>
-
-                    <!--<paper-dropdown-menu label="{{modelDataObj.method.label}}">
-                      <paper-menu class="dropdown-content" attr-for-selected="datavalue" selected="{{modelDataObj.method.path}}">
-                        <template is="dom-repeat" items="[[modelDataObj.method.methodRoutes]]">
-                          <paper-item datavalue="[[item.path]]" on-tap="_changePath">{{formatPath(item.path)}}</paper-item>
-                        </template>
-                      </paper-menu>
-                    </paper-dropdown-menu>-->
+                    <oe-combo label="[[modelDataObj.method.label]]" on-pt-item-confirmed="_changePath" listdata="[[modelDataObj.method.methodRoutes]]"
+                      valueproperty="path" displayproperty="path" selected="{{modelDataObj.method.path}}"></oe-combo>
                     <div class="method-description">{{modelDataObj.method.description}}</div>
                     <form is="iron-form" id="form">
                       <template is="dom-repeat" items="{{modelDataObj.method.requiredFields}}">
@@ -630,7 +618,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         this.makeAjaxCall(url,'get',null,null,null,function(err,res){
           var obj = {};
           if(!err){
-            Object.keys(res).forEach(function(k){
+            res && Object.keys(res).forEach(function(k){
               if(!k.startsWith('_') && k !== 'id' &&  k !== 'scope'){
                 switch(res[k]["type"]){
                   case "String":obj[k] = "";break;

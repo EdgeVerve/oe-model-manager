@@ -25,391 +25,401 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
 <link rel="import" href="dynamic-acl-dialog.html">
 <dom-module id="model-work-area">
   <template>
-      <style>
-          :host {
-           display: block;
-           --dark-border-color: 1px solid rgba(0, 0, 0, 0.22);
-         }
-     
-         .jtk-endpoint {
-           transition: transform 400ms ease;
-           transform: scale(0)
-         }
-     
-          :host.show-end-points .jtk-endpoint {
-           transform: scale(1)
-         }
-     
-         .side-nav {
-           width: 215px;
-           height: calc(100% - 100px);
-           border-right: 1px solid var(--divider-color);
-         }
-     
-         ul,
-         li {
-           list-style: none;
-           padding: 0;
-           margin: 0;
-         }
-         /*workarea container styles*/
-     
-         .workarea-container {
-           padding: 16px;
-           box-sizing: border-box;
-           position: absolute;
-           height: 100%;
-           width: calc(100vw - 320px);
-           font-size: 12px;
-           transform-origin: 50% 50%;
-           transition: 0.1s all ease-out;
-           cursor: -webkit-grab;
-           left: 50px;
-           transform-origin: top left;
-         }
-     
-         .wrapper {
-           position: relative;
-           height: calc(100vh - 86px);
-           overflow: auto;
-         }
-     
-         .wrapper.show-grid-true {
-           background: url('../images/grid.png');
-         }
-     
-         .work-area {
-           height: calc(100vh - 40px);
-           padding: 8px;
-           box-sizing: border-box;
-           background: #dadada;
-           width: 100%;
-           position: relative;
-           overflow: auto;
-         }
-     
-         .work-area .wrapper-container {
-           background: #ffffff;
-           width: 100%;
-         }
-     
-         .busy-text {
-           font-size: 32px;
-           padding: 32px;
-         }
-     
-         #busy-spinner {
-           --paper-spinner-stroke-width: 1px;
-           transform: scale(2);
-         }
-         /* Tab styling */
-     
-         .tab-name.data-manager {
-           color: #db8800;
-         }
-     
-         .tab-name.model-detail {
-           color: #00b0Bf;
-         }
-     
-         .tab-name iron-icon.dirty-flag {
-           height: 6px;
-           width: 6px;
-           padding: 2px;
-           position: absolute;
-           right: 0;
-           top: 0;
-           transition: opacity 300ms ease-in;
-         }
-     
-         .dirty-flag.dirty-flag-true {
-           opacity: 1;
-         }
-     
-         .dirty-flag.dirty-flag-false {
-           opacity: 0;
-         }
-     
-         .tab-name div {
-           overflow: hidden;
-           font-size: 14px;
-         }
-     
-         .tab-name span {
-           text-overflow: ellipsis;
-           white-space: nowrap;
-           overflow: hidden;
-           max-width: 90px;
-         }
-     
-         .tab-name iron-icon+div+span {
-           margin-left: 5px;
-         }
-     
-         .tab-name iron-icon:not(.dirty-flag) {
-     
-           --iron-icon-height: 16px;
-           --iron-icon-width: 16px;
-           border-radius: 50%;
-         }
-     
-         .add-empty-tab {
-           color: #fff;
-           background: #8e8e8e;
-           margin: 0;
-           height: 20px;
-         }
-     
-         .add-empty-tab iron-icon {
-     
-           --iron-icon-height: 16px;
-           --iron-icon-width: 16px;
-         }
-     
-         .add-empty-tab.fixed-btn {
-           position: absolute;
-           top: 5px;
-           right: -35px;
-         }
-     
-         model-sidebar {
-           height: calc(100vh - 40px);
-         }
-     
-         .custom-menu ul {
-           padding: 8px 0;
-           margin: 0;
-         }
-     
-         .custom-menu paper-button {
-           padding: 0 12px !important;
-           height: 35px !important;
-         }
-     
-         .custom-menu .dropdown-content {
-           background: #fff;
-           color: #727272;
-           cursor: pointer;
-         }
-     
-         .custom-menu ul li {
-           padding: 0 8px;
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           min-width: 100px;
-           height: 32px;
-           box-sizing: border-box;
-           font-size: 14px;
-           cursor: pointer;
-         }
-     
-         .custom-menu li.drop-down-list-item:hover {
-           background: #eee;
-         }
-     
-         .tab-header {
-           overflow: hidden;
-         }
-     
-         .tabs-container {
-           position: relative;
-           width: calc(100% - 45px);
-         }
-     
-         .tab-scroll-btn {
-           height: 36px;
-           background: #efefef;
-           z-index: 1;
-           --iron-icon-width:16px;
-           --iron-icon-height:16px;
-         }
-     
-         .tab-scroll-btn.right {
-           box-shadow: -2px -1px 2px rgba(0, 0, 0, 0.25);
-         }
-     
-         .tab-scroll-btn.left {
-           box-shadow: 2px -1px 2px rgba(0, 0, 0, 0.25);
-         }
-     
-         .tab-scroll-btn.hide-btn {
-           display: none;
-         }
-         /* tab action buttons styles */
-              .tab-name iron-icon.tab-close:hover {
-              background: #CCC;
-              color: #fff;
-              border-radius: 50%;
-          }
-
-         .tab-buttons {
-           position: absolute;
-           bottom: 30px;
-           right: 30px;
-           display: flex;
-           flex-direction: row;
-           width: auto;
-           align-items: center;
-         }
-     
-         .save-btns {
-           position: absolute;
-           right: 80px;
-           width: 270px;
-           border: 1px solid var(--divider-color);
-           display: flex;
-           bottom: 10px;
-           background: #F1F1F1;
-         }
-     
-         paper-button iron-icon+span {
-           margin-left: 8px;
-         }
-     
-         .zoom-btns-container {
-           left: 30px;
-           padding: 2px;
-           bottom: 30px;
-           background: #F1F1F1;
-           position: absolute;
-           width: 30px;
-           border: 1px solid var(--divider-color);
-         }
-     
-         .zoom-btns-container paper-icon-button {
-           width: 30px;
-           height: 30px;
-           padding: 3px;
-         }
-     
-         .zoom-btns-container paper-icon-button+paper-icon-button {
-           border-top: 1px solid var(--divider-color);
-         }
-     
-         .tab-buttons>* {
-           margin: 0 8px;
-         }
-     
-         .empty-state {
-           height: 100%;
-           text-align: center;
-         }
-     
-         .empty-state .main-label {
-           font-size: 24px;
-           font-family: 'Roboto-Light';
-         }
-     
-         .empty-state .sub-label {
-           font-size: 12px;
-           margin-top: 8px;
-         }
-     
-         .empty-state-icon {
-           height: 40px;
-           width: 40px;
-         }
-
-         .tab-name {
-              font-size: 14px;
-              cursor: pointer;
-          }
-
-          .tab-name iron-icon {
-              width: 15px;
-              height: 15px;
-          }
-        
-         .trapezoid {
-          width: 125px;
-          height: 30px;
-          background: #EEE;
-          margin: 0px 10px;
-          position: relative;
-          z-index: 0;
+    <style>
+      :host {
+        display: block;
+        --dark-border-color: 1px solid rgba(0, 0, 0, 0.22);
       }
-      
+
+      .jtk-endpoint {
+        transition: transform 400ms ease;
+        transform: scale(0)
+      }
+
+      :host.show-end-points .jtk-endpoint {
+        transform: scale(1)
+      }
+
+      .side-nav {
+        width: 215px;
+        height: calc(100% - 100px);
+        border-right: 1px solid var(--divider-color);
+      }
+
+      ul,
+      li {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      /*workarea container styles*/
+
+      .workarea-container {
+        padding: 16px;
+        box-sizing: border-box;
+        position: absolute;
+        height: 100%;
+        width: calc(100vw - 320px);
+        font-size: 12px;
+        transform-origin: 50% 50%;
+        transition: 0.1s all ease-out;
+        cursor: -webkit-grab;
+        left: 50px;
+        transform-origin: top left;
+      }
+
+      .wrapper {
+        position: relative;
+        height: calc(100vh - 86px);
+        overflow: auto;
+      }
+
+      .wrapper.show-grid-true {
+        background: url('../images/grid.png');
+      }
+
+      .work-area {
+        height: calc(100vh - 40px);
+        padding: 8px;
+        box-sizing: border-box;
+        background: #dadada;
+        width: 100%;
+        position: relative;
+        overflow: auto;
+      }
+
+      .work-area .wrapper-container {
+        background: #ffffff;
+        width: 100%;
+      }
+
+      .busy-text {
+        font-size: 32px;
+        padding: 32px;
+      }
+
+      #busy-spinner {
+        --paper-spinner-stroke-width: 1px;
+        transform: scale(2);
+      }
+
+      /* Tab styling */
+
+      .tab-name.data-manager {
+        color: #db8800;
+      }
+
+      .tab-name.model-detail {
+        color: #00b0Bf;
+      }
+
+      .tab-name iron-icon.dirty-flag {
+        height: 6px;
+        width: 6px;
+        padding: 2px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: opacity 300ms ease-in;
+      }
+
+      .dirty-flag.dirty-flag-true {
+        opacity: 1;
+      }
+
+      .dirty-flag.dirty-flag-false {
+        opacity: 0;
+      }
+
+      .tab-name div {
+        overflow: hidden;
+        font-size: 14px;
+      }
+
+      .tab-name span {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 90px;
+      }
+
+      .tab-name iron-icon+div+span {
+        margin-left: 5px;
+      }
+
+      .tab-name iron-icon:not(.dirty-flag) {
+
+        --iron-icon-height: 16px;
+        --iron-icon-width: 16px;
+        border-radius: 50%;
+      }
+
+      .add-empty-tab {
+        color: #fff;
+        background: #8e8e8e;
+        margin: 0;
+        height: 20px;
+      }
+
+      .add-empty-tab iron-icon {
+
+        --iron-icon-height: 16px;
+        --iron-icon-width: 16px;
+      }
+
+      .add-empty-tab.fixed-btn {
+        position: absolute;
+        top: 5px;
+        right: -35px;
+      }
+
+      model-sidebar {
+        height: calc(100vh - 40px);
+      }
+
+      .custom-menu ul {
+        padding: 8px 0;
+        margin: 0;
+      }
+
+      .custom-menu paper-button {
+        padding: 0 12px !important;
+        height: 35px !important;
+      }
+
+      .custom-menu .dropdown-content {
+        background: #fff;
+        color: #727272;
+        cursor: pointer;
+      }
+
+      .custom-menu ul li {
+        padding: 0 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 100px;
+        height: 32px;
+        box-sizing: border-box;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .custom-menu li.drop-down-list-item:hover {
+        background: #eee;
+      }
+
+      .tab-header {
+        overflow: hidden;
+      }
+
+      .tabs-container {
+        position: relative;
+        width: calc(100% - 45px);
+      }
+
+      .tab-scroll-btn {
+        height: 36px;
+        background: #efefef;
+        z-index: 1;
+        --iron-icon-width: 16px;
+        --iron-icon-height: 16px;
+      }
+
+      .tab-scroll-btn.right {
+        box-shadow: -2px -1px 2px rgba(0, 0, 0, 0.25);
+      }
+
+      .tab-scroll-btn.left {
+        box-shadow: 2px -1px 2px rgba(0, 0, 0, 0.25);
+      }
+
+      .tab-scroll-btn.hide-btn {
+        display: none;
+      }
+
+      /* tab action buttons styles */
+
       .tab-name iron-icon.tab-close:hover {
-          background: #CCC;
-          color: #fff;
-          border-radius: 50%;
+        background: #CCC;
+        color: #fff;
+        border-radius: 50%;
       }
-      
+
+      .tab-buttons {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        flex-direction: row;
+        width: auto;
+        align-items: center;
+      }
+
+      .save-btns {
+        position: absolute;
+        right: 80px;
+        width: 270px;
+        border: 1px solid var(--divider-color);
+        display: flex;
+        bottom: 10px;
+        background: #F1F1F1;
+      }
+
+      paper-button iron-icon+span {
+        margin-left: 8px;
+      }
+
+      .zoom-btns-container {
+        left: 30px;
+        padding: 2px;
+        bottom: 30px;
+        background: #F1F1F1;
+        position: absolute;
+        width: 30px;
+        border: 1px solid var(--divider-color);
+      }
+
+      .zoom-btns-container paper-icon-button {
+        width: 30px;
+        height: 30px;
+        padding: 3px;
+      }
+
+      .zoom-btns-container paper-icon-button+paper-icon-button {
+        border-top: 1px solid var(--divider-color);
+      }
+
+      .tab-buttons>* {
+        margin: 0 8px;
+      }
+
+      .empty-state {
+        height: 100%;
+        text-align: center;
+      }
+
+      .empty-state .main-label {
+        font-size: 24px;
+        font-family: 'Roboto-Light';
+      }
+
+      .empty-state .sub-label {
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      .empty-state-icon {
+        height: 40px;
+        width: 40px;
+      }
+
+      .tab-name {
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .tab-name iron-icon {
+        width: 15px;
+        height: 15px;
+      }
+
+      .trapezoid {
+        width: 125px;
+        height: 30px;
+        background: #EEE;
+        margin: 0px 10px;
+        position: relative;
+        z-index: 0;
+      }
+
+      .tab-name iron-icon.tab-close:hover {
+        background: #CCC;
+        color: #fff;
+        border-radius: 50%;
+      }
+
       .trapezoid.tab-active-true {
-          background: #FEFEFE;
-          box-shadow: 0px -2px 2px rgba(0, 0, 0, .2);
+        background: #FEFEFE;
+        box-shadow: 0px -2px 2px rgba(0, 0, 0, .2);
       }
-      
+
       .trapezoid:before {
-          content: '';
-          line-height: 0;
-          font-size: 0;
-          width: 0;
-          height: 0;
-          border-style: solid;
-          border-top-width: 15px;
-          border-bottom-width: 15px;
-          border-left-width: 8px;
-          border-right-width: 8px;
-          position: absolute;
-          top: 0;
-          right: 100%;
-          border-color: transparent #FEFEFE #FEFEFE transparent;
+        content: '';
+        line-height: 0;
+        font-size: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-top-width: 15px;
+        border-bottom-width: 15px;
+        border-left-width: 8px;
+        border-right-width: 8px;
+        position: absolute;
+        top: 0;
+        right: 100%;
+        border-color: transparent #FEFEFE #FEFEFE transparent;
       }
-      
+
       .trapezoid:after {
-          content: '';
-          line-height: 0;
-          font-size: 0;
-          width: 0;
-          height: 0;
-          border-style: solid;
-          border-top-width: 15px;
-          border-bottom-width: 15px;
-          border-left-width: 8px;
-          border-right-width: 8px;
-          position: absolute;
-          top: 0;
-          left: 100%;
-          border-color: transparent transparent #FEFEFE #FEFEFE;
+        content: '';
+        line-height: 0;
+        font-size: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-top-width: 15px;
+        border-bottom-width: 15px;
+        border-left-width: 8px;
+        border-right-width: 8px;
+        position: absolute;
+        top: 0;
+        left: 100%;
+        border-color: transparent transparent #FEFEFE #FEFEFE;
       }
-      
+
       .trapezoid:not(.tab-active-true):before {
-          border-color: #EEE #EEE transparent transparent;
+        border-color: #EEE #EEE transparent transparent;
       }
-      
+
       .trapezoid:not(.tab-active-true):after {
-          border-color: transparent transparent #EEE #EEE;
+        border-color: transparent transparent #EEE #EEE;
       }
-      
+
       .trapezoid:first-child:before {
-          border-color: #EEE;
-          border-top-left-radius: 4px;
+        border-color: #EEE;
+        border-top-left-radius: 4px;
       }
-      
+
       .trapezoid.tab-active-true:first-child:before {
-          border-color: #FEFEFE;
-          box-shadow: 0px -2px 0px rgba(0, 0, 0, .2);
+        border-color: #FEFEFE;
+        box-shadow: 0px -2px 0px rgba(0, 0, 0, .2);
       }
 
       .slanted-rombus {
-    transform: skew(30deg);
-    border-radius: 2px;
-    padding: 2px 6px;
-}
+        transform: skew(30deg);
+        border-radius: 2px;
+        padding: 2px 6px;
+        margin-bottom: 4px;
+        cursor:pointer;
+      }
 
-.slanted-rombus > * {
-    transform: skew(-25deg);
-}
+      .slanted-rombus:hover{
+        background-color:var(--accent-color);
+      }
 
-.tab-lister {
-  padding: 0px 6px;
-  height: 30px;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  position: relative;
-}
+      .slanted-rombus>* {
+        transform: skew(-25deg);
+      }
+
+      .tab-lister {
+        padding: 0px 6px;
+        height: 30px;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        position: relative;
+      }
 
        </style>
     <div class="flex horizontal layout">
@@ -438,8 +448,8 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
                 </div>
               </template>
             </div>
-            <div class="add-empty-tab slanted-rombus layout horizontal center" id="addEmptyTab">
-              <iron-icon icon="add" type="model-definition" on-tap="_addEmptyTab"></iron-icon>
+            <div class="add-empty-tab slanted-rombus layout horizontal center" id="addEmptyTab" on-tap="_addEmptyTab">
+              <iron-icon icon="add" type="model-definition"></iron-icon>
             </div>
             <paper-icon-button icon="chevron-right" class$="tab-scroll-btn right {{computeClass(hideScrollButtons)}}" disabled$="{{disableBtn(_rightHidden)}}"
               on-tap="_scrollToRight"></paper-icon-button>
@@ -570,7 +580,8 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         'add-property-in-dialog':'_handleModelEditor',
         'add-validation-in-dialog':'_handleModelEditor',
         'add-relation-in-dialog':'_handleModelEditor',
-        'add-acl-in-dialog':'_handleModelEditor'
+        'add-acl-in-dialog':'_handleModelEditor',
+        'create-default-ui':'_handleDefaultUI'
       },
       observers: [
         '_viewChanged(_selectedTab.currentZoom, currentX, currentY)',
@@ -1126,7 +1137,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             return x.id == modelObj.id;
           });
           this.workSpaceModelList[selectedModelIndex].checked = false;
-          this.dispatch('updateModelList', this.workSpaceModelList[selectedModelIndex], updateModelIndex);
+          //this.dispatch('updateModelList', this.workSpaceModelList[selectedModelIndex], updateModelIndex);
           // this.set('modelList.' + updateModelIndex, this.workSpaceModelList[selectedModelIndex]);
           //deleting from workarea
           this.workAreaInstance.remove(modelNodes[selectedIndex]);
@@ -1303,7 +1314,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
       },
       createModelContainer: function (obj) {
         var elem = document.createElement('model-container');
-        elem.modelObj = obj;
+        elem.set('modelObj', JSON.parse(JSON.stringify(obj)));
         var modelNodes = this.$.workarea.querySelectorAll('model-container');
 
         var modelConfig = _.find(this._selectedTab.models, {
@@ -1389,6 +1400,18 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         var attachWorkflowDlg = this.$.attachWorkflowDlg;
         attachWorkflowDlg.set('modelObj', e.detail);
         attachWorkflowDlg.openDialog();
+      },
+      _handleDefaultUI: function (e) {
+        var data = {
+          modelName: e.detail.name
+        }
+        this.makeAjaxCall('/designer/createDefaultUI', 'POST', data, null, null, function (err, res) {
+          if (!err) {
+            this.fire('oe-show-success', res.message);
+          } else {
+            this.resolveError(err);
+          }
+        }.bind(this));
       },
       _handleModelEditor:function(e){
         var data = JSON.parse(JSON.stringify(e.detail));

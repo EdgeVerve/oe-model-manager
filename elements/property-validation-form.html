@@ -1,8 +1,8 @@
 <!-- ©2015-2016 EdgeVerve Systems Limited (a fully owned Infosys subsidiary), Bangalore, India. All Rights Reserved.
 The EdgeVerve proprietary software program ("Program"), is protected by copyrights laws, international treaties and other pending or existing intellectual property rights in India, the United States and other countries.
-The Program may contain/reference third party or open source components, the rights to which continue to 
-remain with the applicable third party licensors or the open source community as the case may be and nothing 
-here transfers the rights to the third party and open source components, except as expressly permitted. 
+The Program may contain/reference third party or open source components, the rights to which continue to
+remain with the applicable third party licensors or the open source community as the case may be and nothing
+here transfers the rights to the third party and open source components, except as expressly permitted.
 Any unauthorized reproduction, storage, transmission in any form or by any means (including without limitation to electronic, mechanical, printing, photocopying, recording or  otherwise), or any distribution of this Program,or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under the law. -->
 <link rel="import" href="../../polymer/polymer.html">
 <dom-module id="property-validation-form">
@@ -14,79 +14,79 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             width: 350px;
             height: calc(100vh - 100px);
           }
-      
+
           .heading-panel {
             background: #ddd;
             padding: 8px 16px;
             letter-spacing: 1px;
           }
-      
+
           .content-panel {
             overflow: auto;
             height: calc(100vh - 192px);
           }
-      
+
           .prop-name {
             font-size: 16px;
             font-weight: 500;
           }
-      
+
           .prop-type {
             font-size: 12px;
             padding-bottom: 16px;
           }
-      
+
           .validation-help-text {
             font-size: 10px;
             opacity: 0.7;
             margin: 8px 0px;
           }
-      
+
           .validation-help-text iron-icon {
             --iron-icon-width: 16px;
             --iron-icon-height: 16px;
           }
-      
+
           .seperator hr {
             margin: 0px;
           }
-      
+
           .seperator span {
             text-align: center;
           }
-      
+
           .validation-block {
             padding: 16px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
           }
-      
+
           .validation-block:nth-of-type(even) {
             background: #fafafa;
           }
-      
+
           .validation-block>label {
             margin-bottom: 8px;
           }
-      
+
           .button-holder {
             padding: 16px;
             text-align: right;
           }
-      
+
           .scope-key-value-list {
             margin: 8px 0px;
           }
-      
+
           .scope-key {
             border-right: 2px solid rgba(0, 0, 0, 0.1);
             padding-top: 4px;
             text-transform: capitalize;
           }
-      
+
           .scope-value-list {
             padding-left: 12px;
           }
-      
+
           .scope-value {
             padding: 2px 6px;
             background: var(--default-primary-color);
@@ -96,7 +96,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
             text-align: center;
             color: #fff;
           }
-      
+
           .back-icon {
             margin-right: 8px;
           }
@@ -349,7 +349,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
       setValidation: function () {
         var self = this;
         var prop = {};
-        Object.keys(self.validation).forEach(function (key) {
+        self.validation && Object.keys(self.validation).forEach(function (key) {
           var val = self.validation[key]
           if (self.checkValue(val)) {
             prop[key] = val;
