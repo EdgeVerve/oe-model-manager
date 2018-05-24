@@ -33,6 +33,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
           </div>
           <div class="layout horizontal">
             <oe-checkbox class="layout flex" field-id="wfDependent" label="Workflow Dependent" value={{vm.wfDependent}}></oe-checkbox>
+            <oe-checkbox class="layout flex" field-id="makersRecall" label="Only Makers Can Recall" value={{vm.makersRecall}}></oe-checkbox>
             <oe-combo class="layout flex" field-id="version" listdata='["none","v1","v2"]' label="Maker-Checker Version" value={{vm.version}}></oe-combo>
           </div>
         </div>
@@ -55,6 +56,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
           value: function() {
             return {
               wfDependent: false,
+              makersRecall: true,
               operation: 'create',
               workflowBody: {
                 variables: []
@@ -90,11 +92,24 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
 
         next(undefined, headers, data);
       },
+      postInsert: function(newData, oldData, next) {
+        /* 
+          The response of POST {data} is {mappings: [{data}]}
+          We extract our {data} from inside mappings and restore it as newData.
+        */
+        if(newData && newData.mappings && newData.mappings.length === 1){
+          var rec = newData.mappings[0];
+          delete newData.mappings;
+          Object.assign(newData, rec);
+        }
+        next(undefined, newData, oldData);
+      },
       attached: function() {
         var self = this;
         self.resturl = OEUtils._getRestApiUrl('/WorkflowManagers/workflows');
         self.workflowURL = OEUtils._getRestApiUrl('/WorkflowDefinitions');
         self.use('preInsert', self.preInsert)
+        self.use('postInsert', self.postInsert)
       }
     });
 
