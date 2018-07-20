@@ -140,6 +140,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
           value: function () {
             return {
               wfDependent: false,
+              makersRecall: false,
               operation: 'create',
               workflowBody: {
                 variables: []
@@ -165,6 +166,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
         if (!this.workflowDef) {
           this.set('workflowDef', {
             wfDependent: false,
+            makersRecall: false,
             operation: 'create',
             workflowBody: {
               variables: []
