@@ -337,7 +337,7 @@ Any unauthorized reproduction, storage, transmission in any form or by any means
       observers: ['validationListChanged(evValidations.*)'],
       _editValidation: function (e) {
         var index = e.model.index;
-        var valid = false
+        var valid = true; //default to true , assumming no rows are in edit mode.
         var editable = _.find(this.evValidations, function (prop) {
           return prop.editable === true;
         });
